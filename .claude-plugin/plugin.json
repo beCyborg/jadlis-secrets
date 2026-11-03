@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "jadlis-secrets",
+  "version": "1.0.0",
+  "displayName": "jadlis-secrets — доступы агента в одном хранилище 1Password",
+  "description": "Скилл /secrets держит все логины, токены и ключи агента в одном хранилище 1Password и читает их через сервисный аккаунт без Touch ID. Пароль не попадает в контекст модели: в веб-форму его передаёт одноразовый локальный адрес secret-relay.py, в приложение — слепой буфер обмена. Ещё: создать логин со сгенерированным паролем, сохранить выданный токен, сменить пароль, алиасы Proton Pass для регистраций.",
+  "author": {
+    "name": "Be Cyborg"
+  },
+  "homepage": "https://gitlab.com/beCyborg/jadlis-secrets",
+  "repository": "https://gitlab.com/beCyborg/jadlis-secrets",
+  "keywords": [
+    "jadlis",
+    "secrets",
+    "1password",
+    "service-account",
+    "proton-pass",
+    "alias",
+    "agent",
+    "macos"
+  ]
+}

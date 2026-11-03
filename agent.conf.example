@@ -1,0 +1,35 @@
+# Shared agent config for the jadlis-secrets / jadlis-signup / jadlis-mail / jadlis-browser plugins.
+# Copy to ~/.config/jadlis/agent.conf and fill in. Plain KEY=value lines, comments start with #.
+# Keep it shell-sourceable: double-quote every value (KEY="value"). Readers should parse it, not source it.
+# No secrets here: the 1Password service-account token lives in the macOS Keychain, never in this file.
+
+# 1Password: vault the agent may read/write (name or id) and the account (needed when several accounts are signed in).
+# Prefer the vault id (op vault list) when the name contains characters other than letters, digits and spaces.
+OP_VAULT="Agent"
+OP_ACCOUNT=""
+
+# macOS Keychain item (service name) that holds the 1Password service-account token; account = $USER
+OP_SA_KEYCHAIN_SERVICE="op-service-account-agent"
+
+# Proton Pass: 1Password item (id or name, in OP_VAULT) with the Proton account login used to sign pass-cli in.
+# Fields read: username, password, and the one-time password if the item has one.
+PASS_LOGIN_ITEM="Proton Pass"
+# Proton Pass vault where proton-alias.sh creates aliases (optional; default Personal)
+PASS_VAULT="Personal"
+
+# Sign-up aliases are created as <ALIAS_PREFIX>-<service-slug>; optional alias domain suffix chosen in Proton Pass
+ALIAS_PREFIX="agent"
+ALIAS_DOMAIN=""
+
+# Browser profile for browser-operator (jadlis-browser agent-chrome profile name)
+BROWSER_PROFILE="agent"
+
+# jm (jadlis-mail) account that receives verification mail, and the folder to watch
+MAIL_ACCOUNT=""
+MAIL_FOLDER="All Mail"
+
+# Name to put on sign-up forms unless told otherwise
+SIGNUP_NAME=""
+
+# OAuth sign-in ("Continue with Google") is a human step unless set to yes
+ALLOW_OAUTH="no"
