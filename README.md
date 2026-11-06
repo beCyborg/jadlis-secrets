@@ -8,7 +8,7 @@
 локальный адрес, в приложение — «слепой» буфер обмена.
 
 ```
-claude plugin marketplace add https://gitlab.com/beCyborg/jadlis-hub.git
+claude plugin marketplace add https://github.com/beCyborg/jadlis-hub.git
 claude plugin install jadlis-secrets@jadlis
 ```
 
@@ -34,7 +34,7 @@ claude plugin install jadlis-secrets@jadlis
 1. Плагин:
 
    ```
-   claude plugin marketplace add https://gitlab.com/beCyborg/jadlis-hub.git
+   claude plugin marketplace add https://github.com/beCyborg/jadlis-hub.git
    claude plugin install jadlis-secrets@jadlis
    ```
 

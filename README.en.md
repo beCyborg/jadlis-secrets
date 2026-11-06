@@ -8,7 +8,7 @@ Touch ID on every command. A password never enters the model's context: a one-sh
 carries it into a web form, and a "blind" clipboard carries it into a native app.
 
 ```
-claude plugin marketplace add https://gitlab.com/beCyborg/jadlis-hub.git
+claude plugin marketplace add https://github.com/beCyborg/jadlis-hub.git
 claude plugin install jadlis-secrets@jadlis
 ```
 
@@ -34,7 +34,7 @@ aliases.
 1. The plugin:
 
    ```
-   claude plugin marketplace add https://gitlab.com/beCyborg/jadlis-hub.git
+   claude plugin marketplace add https://github.com/beCyborg/jadlis-hub.git
    claude plugin install jadlis-secrets@jadlis
    ```
 
