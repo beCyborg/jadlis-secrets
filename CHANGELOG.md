@@ -2,18 +2,19 @@
 
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии — [SemVer](https://semver.org/lang/ru/).
 
-## [Unreleased]
+## [1.1.0] — 2026-11-21 — категории и встроенные поля 1Password / 1Password categories and built-in fields
 
 ### Для человека
 
 - Агент сохраняет каждый секрет в подходящую категорию 1Password: логин — в «Логин», ключ API — в «API Credential», карту — в «Банковская карта», сервер — в «Сервер». Значения попадают во встроенные поля категории, а не в текст заметки.
 - Новый скрипт `op-item.py` записывает значения через временный файл с правами 0600 и никогда не передаёт их в аргументах команды.
+- Обновился — скопируй скрипты плагина в `~/.claude/scripts/` ещё раз (шаг 3 в README): там новый `op-item.py` и новый `secret-relay.py`.
 
-### Technical
+### For agents
 
-- Added `scripts/op-item.py`: create/edit by category template, built-in fields first, custom fields only in a named section, secrets from stdin/clipboard/env/file, `--dry-run`, metadata-only output; SSH Key generation without a template (op 2.42 refuses `--template` for SSH keys).
-- `secret-relay.py receive --stdin`: hands the value to the command's stdin instead of a `{}` argument.
-- `skills/secrets/SKILL.md`: category table; token recipes use `op-item.py`.
+- Added: `scripts/op-item.py`: create/edit by category template, built-in fields first, custom fields only in a named section, secrets from stdin/clipboard/env/file, `--dry-run`, metadata-only output; SSH Key generation without a template (op 2.42 refuses `--template` for SSH keys).
+- Added: `secret-relay.py receive --stdin`: hands the value to the command's stdin instead of a `{}` argument.
+- Changed: `skills/secrets/SKILL.md`: category table; token recipes use `op-item.py`.
 
 ## [1.0.0] — 2026-11-03 — Первый выпуск / First release
 
