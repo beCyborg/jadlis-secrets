@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+### Для человека
+
+- Агент сохраняет каждый секрет в подходящую категорию 1Password: логин — в «Логин», ключ API — в «API Credential», карту — в «Банковская карта», сервер — в «Сервер». Значения попадают во встроенные поля категории, а не в текст заметки.
+- Новый скрипт `op-item.py` записывает значения через временный файл с правами 0600 и никогда не передаёт их в аргументах команды.
+
+### Technical
+
+- Added `scripts/op-item.py`: create/edit by category template, built-in fields first, custom fields only in a named section, secrets from stdin/clipboard/env/file, `--dry-run`, metadata-only output; SSH Key generation without a template (op 2.42 refuses `--template` for SSH keys).
+- `secret-relay.py receive --stdin`: hands the value to the command's stdin instead of a `{}` argument.
+- `skills/secrets/SKILL.md`: category table; token recipes use `op-item.py`.
+
 ## [1.0.0] — 2026-11-03 — Первый выпуск / First release
 
 ### Для человека

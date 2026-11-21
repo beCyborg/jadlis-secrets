@@ -19,7 +19,9 @@ serve   — a one-shot server on a random 127.0.0.1 port hands the secret to ONE
 receive — a one-shot server takes ONE POST of a value to a random path and runs the command after `--` with
           every `{}` argument replaced by the value; answers the POST with {"rc", "length"} only.
             secret-relay.py receive -- security add-generic-password -s <service> -a "$USER" -w {} -U
-            secret-relay.py receive -- ~/.claude/scripts/op-agent.sh item edit <item-id> 'credential={}'
+            secret-relay.py receive --stdin -- ~/.claude/skills/onepassword/scripts/op-item.py edit <item-id> \
+                --op ~/.claude/scripts/op-agent.sh --vault <vault-id> --secret credential=stdin
+          --stdin: the value goes to the command's stdin instead of `{}` (argv is visible in `ps`). Prefer it.
           In browser_run_code_unsafe: const v = await page.locator(SEL).inputValue();
             return await (await page.request.post(URL, { data: v })).json();   // {rc, length}
 Options: --timeout S (default 120 for serve, 300 for receive). Each call gets its own port and path; nothing is
@@ -72,6 +74,7 @@ mode = args.pop(0)
 timeout = 120 if mode == 'serve' else 300
 source = None
 cmd = None
+use_stdin = False  # receive --stdin: hand the value to the command's stdin, never to its argv
 while args:
     a = args[0]
     if a == '--timeout' and len(args) > 1:
@@ -80,6 +83,8 @@ while args:
         if source:
             usage()
         source = (a, args[1]); args = args[2:]
+    elif mode == 'receive' and a == '--stdin':
+        use_stdin = True; args = args[1:]
     elif mode == 'receive' and a == '--':
         cmd = args[1:]; args = []
     else:
@@ -88,7 +93,7 @@ while args:
 if mode == 'receive':
     if not cmd:
         usage()
-    if not any('{}' in a for a in cmd):
+    if not use_stdin and not any('{}' in a for a in cmd):
         sys.stderr.write('receive: the command needs a {} placeholder\n'); sys.exit(64)
     value = None
 else:
@@ -155,7 +160,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(400, json.dumps({'rc': None, 'length': 0, 'error': 'empty value'}))
         done.set()
         try:
-            r = subprocess.run([a.replace('{}', v) for a in cmd], capture_output=True, text=True, timeout=60)
+            io = {'input': v} if use_stdin else {'stdin': subprocess.DEVNULL}
+            r = subprocess.run(cmd if use_stdin else [a.replace('{}', v) for a in cmd],
+                               capture_output=True, text=True, timeout=60, **io)
             err = (r.stderr or '').replace(v, '<redacted>')[:200]
             body = {'rc': r.returncode, 'length': len(v)}
             if r.returncode:

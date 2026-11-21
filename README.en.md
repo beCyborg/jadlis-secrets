@@ -45,7 +45,7 @@ aliases.
    ```
    mkdir -p ~/.claude/scripts
    cp <plugin folder>/scripts/* ~/.claude/scripts/
-   chmod +x ~/.claude/scripts/op-agent.sh ~/.claude/scripts/secret-relay.py ~/.claude/scripts/proton-alias.sh
+   chmod +x ~/.claude/scripts/op-agent.sh ~/.claude/scripts/secret-relay.py ~/.claude/scripts/proton-alias.sh ~/.claude/scripts/op-item.py
    ```
 
 4. Settings. Copy the example and fill it in:

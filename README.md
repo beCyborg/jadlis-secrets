@@ -45,7 +45,7 @@ claude plugin install jadlis-secrets@jadlis
    ```
    mkdir -p ~/.claude/scripts
    cp <папка плагина>/scripts/* ~/.claude/scripts/
-   chmod +x ~/.claude/scripts/op-agent.sh ~/.claude/scripts/secret-relay.py ~/.claude/scripts/proton-alias.sh
+   chmod +x ~/.claude/scripts/op-agent.sh ~/.claude/scripts/secret-relay.py ~/.claude/scripts/proton-alias.sh ~/.claude/scripts/op-item.py
    ```
 
 4. Настройки. Скопируй образец и заполни его:

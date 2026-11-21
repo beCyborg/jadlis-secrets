@@ -35,6 +35,19 @@ curl -s -m 3 $url >/dev/null; [[ $? != 0 ]] && ok "relay second GET refused (pro
 o2=$($s/secret-relay.py receive --timeout 20 -- sh -c 'test "$1" = typed' _ {})
 u2=$(print -r -- $o2 | python3 -c 'import json,sys;print(json.load(sys.stdin)["url"])')
 [[ $(curl -s -X POST --data typed $u2) == '{"rc": 0, "length": 5}' ]] && ok "relay receive runs the command" || bad "relay receive"
+o3=$($s/secret-relay.py receive --stdin --timeout 20 -- sh -c 'read v; test "$v" = piped && test "$#" = 0')
+u3=$(print -r -- $o3 | python3 -c 'import json,sys;print(json.load(sys.stdin)["url"])')
+[[ $(curl -s -X POST --data piped $u3) == '{"rc": 0, "length": 5}' ]] && ok "relay receive --stdin pipes the value, no argv" || bad "relay receive --stdin"
+
+python3 -m py_compile $s/op-item.py && ok "py_compile op-item.py" || bad "py_compile op-item.py"; rm -rf $s/__pycache__
+if command -v op >/dev/null; then   # templates are local: no sign-in, no network
+  $s/op-item.py fields "API Credential" | grep -q '"credential"' && ok "op-item fields lists built-ins" || bad "op-item fields"
+  r=$($s/op-item.py create --vault x --category Login --title t --set 'foo[text]=bar'); [[ $r == *'needs a section'* ]] && ok "op-item refuses an unsectioned custom field" || bad "unsectioned guard"
+  r=$(print -n k | $s/op-item.py create --vault x --category "SSH Key" --title t --secret private_key=stdin); [[ $r == *'cannot import'* ]] && ok "op-item refuses SSH key import" || bad "ssh import guard"
+  r=$($s/op-item.py create --category Login --title t); [[ $r == *'--vault'* ]] && ok "op-item requires --vault" || bad "vault guard"
+else
+  print "skip op-item checks: op not installed"
+fi
 
 $s/proton-alias.sh --help >/dev/null && ok "proton-alias --help" || bad "proton-alias --help"
 $s/proton-alias.sh create Bad_Slug --dry-run 2>/dev/null; [[ $? == 64 ]] && ok "proton-alias rejects a bad slug" || bad "slug guard"

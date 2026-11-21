@@ -18,9 +18,28 @@ Scripts live in `~/.claude/scripts/` after the install step (below). If `op-agen
 3. **Refer to items by id.** Get ids from `item list`; use `op://<vault-id>/<item-id>/<field>` references. Names with dashes, slashes or non-Latin letters break `op read` references.
 4. **A secret never enters the model context.** Never run `op read`, `--reveal` or `pbpaste` where the output lands in the transcript. Send a secret straight into a pipe, a `0600` file you delete, or a child process, and report only its length.
    - **Into a web form** (browser-operator): `secret-relay.py serve --op 'op://…'` prints a one-shot `127.0.0.1` URL; browser-operator fetches it inside `browser_run_code_unsafe` and fills the field. Full snippet: `secret-relay.py --help`.
-   - **Out of a web page** (a key the site shows once): `secret-relay.py receive -- <command with {}>`; browser-operator POSTs the value, the command stores it.
+   - **Out of a web page** (a key the site shows once): `secret-relay.py receive --stdin -- <command that reads the value on stdin>`; browser-operator POSTs the value, the command stores it. `--stdin` keeps the value off every command line (`ps` and shell history show arguments); the older `{}` form puts it into argv — use it only for commands that cannot read stdin.
    - **Into a native app** (desktop-operator): the blind clipboard — [references/blind-clipboard.md](references/blind-clipboard.md).
 5. **Sign-ups, payments, phone checks.** The sign-up flow is jadlis-signup. Payments, card binding and phone verification stay with the human.
+
+## Category and fields
+
+Store each secret as the item category that matches it and fill that category's own fields; `~/.claude/scripts/op-item.py fields "<category>"` lists them. Add a custom field only when no built-in field fits — inside a named section and with a matching type (`Details.scopes[text]`, `Security.one-time password[otp]`, `Details.dashboard[url]`). `op-item.py` writes values through a 0600 template file, never through argv, and refuses a custom field without a section.
+
+| What | Category | Built-in fields |
+|---|---|---|
+| Site or app account | Login | `username`, `password`, `--url` |
+| API key, token, OAuth client | API Credential | `credential` (secret), `username` (key id), `hostname`, `expires` |
+| Password with no account (passphrase, PIN) | Password | `password` |
+| Bank card | Credit Card | `cardholder`, `type`, `ccnum`, `cvv`, `expiry` (YYYYMM) |
+| Server, VPS, panel | Server | `url`, `username`, `password`, admin console, hosting provider |
+| Database | Database | `database_type`, `hostname`, `port`, `database`, `username`, `password` |
+| Mailbox for IMAP/SMTP | Email Account | `pop_username`, `pop_server`, `pop_password`, `smtp_*` |
+| SSH key | SSH Key | generated: `op-item.py create --category "SSH Key" --ssh-generate-key=ed25519`; an existing key is imported in the 1Password app (the CLI stores it as plain text) |
+| A file | Document | `op document create <file> --title … --vault "$V"` |
+| Text with no secret | Secure Note | `notesPlain` — never a secret in notes |
+
+Two keys of one service are two items, not two concealed fields on the Login.
 
 ## Commands
 
@@ -50,16 +69,17 @@ Then pass the password to the form with `secret-relay.py serve --op "op://$V/<it
 
 Never type a token into a command line: assignment arguments show up in the process list. Feed it through stdin as a JSON template.
 
-- The human copies the token, then you run (the value goes clipboard → stdin → 1Password; check only the length first):
+- The human copies the token, then you run (the value goes clipboard → a 0600 template file → 1Password; check only the length first):
 
 ```bash
 pbpaste | wc -c                                                     # length only; Spokenly-style tools can overwrite the clipboard
-pbpaste | python3 -c 'import json,sys; v=sys.stdin.read().strip(); print(json.dumps({"title": sys.argv[1], "category": "API_CREDENTIAL", "fields": [{"id": "credential", "type": "CONCEALED", "label": "credential", "value": v}]}))' "<Service> API key" \
-  | $A item create - --vault "$V" --format json | jq '{id, title}'
+~/.claude/scripts/op-item.py create --op $A --vault "$V" --category "API Credential" \
+   --title "<Service> · API key" --url "https://<service>" --secret credential=clipboard \
+   --set hostname=api.<service> --set "Details.scopes[text]=<scopes>"   # prints field labels and types, never values
 printf '' | pbcopy                                                  # clear the clipboard
 ```
 
-- The token is on a web page: `~/.claude/scripts/secret-relay.py receive -- ~/.claude/scripts/op-agent.sh item edit <item-id> --vault "$V" 'credential={}'` and hand the URL to browser-operator. Create the empty item first with `item create … --category "API Credential" --title "<Service> API key"`.
+- The token is on a web page: `~/.claude/scripts/secret-relay.py receive --stdin -- ~/.claude/scripts/op-item.py create --op ~/.claude/scripts/op-agent.sh --vault "$V" --category "API Credential" --title "<Service> · API key" --secret credential=stdin` and hand the URL to browser-operator. Into an existing item: `… receive --stdin -- ~/.claude/scripts/op-item.py edit <item-id> --op … --vault "$V" --secret credential=stdin`.
 - The token must sit in the Keychain instead (another tool reads it there): `secret-relay.py receive -- security add-generic-password -s <service> -a "$USER" -w {} -U`, or let the human run `security add-generic-password -s <service> -a "$USER" -w` in a terminal (it prompts for the value).
 - If the human already pasted a token into the chat, store it, say it is now in the transcript, and suggest rotating it.
 
